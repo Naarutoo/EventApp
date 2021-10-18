@@ -1,0 +1,63 @@
+package com.example.eventapp
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.eventapp.OnTaskItemClicked
+import com.example.eventapp.RoutineAdapter
+
+
+import kotlinx.android.synthetic.main.activity_main.*
+
+class MainActivity : AppCompatActivity(), OnTaskItemClicked {
+
+    private var routineList: MutableList<RoutineModel> = mutableListOf()
+    lateinit var mAdapter: RoutineAdapter
+    lateinit var dbHandler: DatabaseHandler
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+
+        dbHandler = DatabaseHandler(this)
+        routineList = dbHandler.getRoutine()
+
+        mAdapter = RoutineAdapter(this, routineList, this)
+        recyclerview.layoutManager = LinearLayoutManager(this)
+        recyclerview.adapter = mAdapter
+
+
+
+        addBtn.setOnClickListener {
+            dbHandler.insertRoutine("Youth festival", "the best festival of ", "27th","dhanbad","345")
+        }
+
+        updateBtn.setOnClickListener {
+            dbHandler.updateRoutine(1, "subhash", "freedomFighter", "16th","Indian","3543")
+        }
+
+        deleteBtn.setOnClickListener {
+            dbHandler.deleteRoutine(2)
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onEditClicked(routine: RoutineModel) {
+
+        dbHandler.updateRoutine(routine.id, "kings life", "Good for children", "Mon","LONDON","$32")
+        routineList = dbHandler.getRoutine()
+        routineList.clear()
+        routineList.addAll(dbHandler.getRoutine())
+        mAdapter.notifyDataSetChanged()
+    }
+
+    override fun onDeleteClicked(routine: RoutineModel) {
+        dbHandler.deleteRoutine(routine.id)
+        routineList.clear()
+        routineList.addAll(dbHandler.getRoutine())
+        routineList = dbHandler.getRoutine()
+
+    }
+}
